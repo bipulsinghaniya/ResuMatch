@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ResuMatch — AI Resume vs JD Analyzer</title>
+  <meta name="description" content="Analyze how closely your resume matches a job description using AI. Get match percentage and actionable suggestions." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  <!-- Animated background blobs -->
+  <div class="bg-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="6" width="22" height="28" rx="3" stroke="url(#g1)" stroke-width="2.5"/>
+            <rect x="14" y="6" width="22" height="28" rx="3" stroke="url(#g2)" stroke-width="2.5" opacity="0.5"/>
+            <path d="M9 14h12M9 19h10M9 24h8" stroke="url(#g1)" stroke-width="2" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="g1" x1="0" y1="0" x2="40" y2="40">
+                <stop stop-color="#6366f1"/><stop offset="1" stop-color="#a855f7"/>
+              </linearGradient>
+              <linearGradient id="g2" x1="0" y1="0" x2="40" y2="40">
+                <stop stop-color="#a855f7"/><stop offset="1" stop-color="#ec4899"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <h1 class="logo-text">ResuMatch</h1>
+          <p class="logo-sub">AI-Powered Resume Analyzer</p>
+        </div>
+      </div>
+      <div class="steps-indicator">
+        <div class="step-dot active" id="dot-1"><span>1</span></div>
+        <div class="step-line" id="line-1"></div>
+        <div class="step-dot" id="dot-2"><span>2</span></div>
+        <div class="step-line" id="line-2"></div>
+        <div class="step-dot" id="dot-3"><span>3</span></div>
+      </div>
+    </header>
+
+    <!-- Step 1: Job Description -->
+    <section class="card step-section active" id="step-1">
+      <div class="card-header">
+        <div class="card-icon">📋</div>
+        <div>
+          <h2>Paste the Job Description</h2>
+          <p>Copy and paste the full JD you want to match against</p>
+        </div>
+      </div>
+      <textarea
+        id="jd-input"
+        class="text-input"
+        rows="10"
+        placeholder="Paste the complete job description here...&#10;&#10;Example:&#10;We are looking for a Full Stack Developer with 3+ years experience in React, Node.js, and MongoDB..."
+      ></textarea>
+      <div class="card-actions">
+        <button class="btn btn-primary" id="btn-next-1" disabled>
+          Next — Add Resume
+          <svg class="btn-arrow" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Step 2: Resume Input -->
+    <section class="card step-section" id="step-2">
+      <div class="card-header">
+        <div class="card-icon">📄</div>
+        <div>
+          <h2>Add Your Resume</h2>
+          <p>Paste text or upload a PDF — we'll extract the content</p>
+        </div>
+      </div>
+
+      <div class="input-toggle">
+        <button class="toggle-btn active" id="toggle-text" data-mode="text">✍️ Paste Text</button>
+        <button class="toggle-btn" id="toggle-file" data-mode="file">📎 Upload PDF</button>
+      </div>
+
+      <!-- Text input -->
+      <div class="resume-input-area" id="resume-text-area">
+        <textarea
+          id="resume-text-input"
+          class="text-input"
+          rows="10"
+          placeholder="Paste your resume content here...&#10;&#10;Include your skills, experience, education, projects, etc."
+        ></textarea>
+      </div>
+
+      <!-- File upload -->
+      <div class="resume-input-area hidden" id="resume-file-area">
+        <label class="file-drop-zone" id="drop-zone">
+          <input type="file" id="resume-file-input" accept=".pdf" hidden />
+          <div class="drop-icon">
+            <svg viewBox="0 0 48 48" fill="none">
+              <path d="M24 4v28m0 0l-8-8m8 8l8-8" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8 36v4a4 4 0 004 4h24a4 4 0 004-4v-4" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <p class="drop-text">Click to browse or drag & drop</p>
+          <p class="drop-hint">PDF files only • Max 5MB</p>
+        </label>
+        <div class="file-preview hidden" id="file-preview">
+          <div class="file-info">
+            <span class="file-icon">📄</span>
+            <span class="file-name" id="file-name"></span>
+            <span class="file-size" id="file-size"></span>
+          </div>
+          <button class="btn-remove-file" id="btn-remove-file">✕</button>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn btn-ghost" id="btn-back-2">← Back</button>
+        <button class="btn btn-primary btn-analyze" id="btn-analyze" disabled>
+          <span class="btn-analyze-text">🔍 Analyze Match</span>
+          <span class="btn-loading hidden">
+            <span class="spinner"></span> Analyzing...
+          </span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Step 3: Results -->
+    <section class="card step-section" id="step-3">
+      <div class="results-container" id="results-container">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Fix Your Resume CTA -->
+      <div class="fix-resume-cta hidden" id="fix-resume-cta">
+        <div class="fix-resume-divider"></div>
+        <button class="btn btn-fix-resume" id="btn-fix-resume">
+          <span class="fix-icon">✨</span>
+          Fix Your Resume
+          <span class="fix-arrow">→</span>
+        </button>
+      </div>
+
+      <!-- Resume Download Area (shown after generation) -->
+      <div class="resume-download-area hidden" id="resume-download-area">
+        <div class="fix-resume-divider"></div>
+        <div class="download-header">
+          <span class="download-icon">📄</span>
+          <div>
+            <h3>Your Resume is Ready!</h3>
+            <p>Preview it below or download as PDF</p>
+          </div>
+        </div>
+        <div class="resume-preview-frame" id="resume-preview-frame"></div>
+        <div class="download-actions">
+          <button class="btn btn-primary btn-download" id="btn-download-resume">
+            ⬇️ Download PDF
+          </button>
+          <button class="btn btn-ghost" id="btn-regenerate">🔄 Try Other Layout</button>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn btn-ghost" id="btn-start-over">← Start Over</button>
+      </div>
+    </section>
+
+    <!-- Layout Picker Modal -->
+    <div class="modal-overlay hidden" id="layout-modal">
+      <div class="modal-card">
+        <button class="modal-close" id="modal-close">✕</button>
+        <div class="modal-header">
+          <span class="modal-emoji">📐</span>
+          <h2>Choose Resume Layout</h2>
+          <p>Pick a layout style for your formatted resume</p>
+        </div>
+        <div class="layout-options">
+          <button class="layout-option" id="layout-left-right" data-layout="left-right">
+            <div class="layout-preview layout-preview-lr">
+              <div class="lp-sidebar"></div>
+              <div class="lp-main">
+                <div class="lp-line lp-line-long"></div>
+                <div class="lp-line lp-line-med"></div>
+                <div class="lp-line lp-line-short"></div>
+                <div class="lp-line lp-line-long"></div>
+              </div>
+            </div>
+            <span class="layout-label">Left – Right</span>
+            <span class="layout-desc">Classic two-column with sidebar</span>
+          </button>
+          <button class="layout-option" id="layout-up-down" data-layout="up-down">
+            <div class="layout-preview layout-preview-ud">
+              <div class="lp-header-bar"></div>
+              <div class="lp-body-lines">
+                <div class="lp-line lp-line-long"></div>
+                <div class="lp-line lp-line-med"></div>
+                <div class="lp-line lp-line-short"></div>
+                <div class="lp-line lp-line-long"></div>
+                <div class="lp-line lp-line-med"></div>
+              </div>
+            </div>
+            <span class="layout-label">Top – Down</span>
+            <span class="layout-desc">Modern single-column flow</span>
+          </button>
+        </div>
+        <div class="modal-loading hidden" id="modal-loading">
+          <span class="spinner"></span>
+          <span>Generating your resume...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Toast -->
+    <div class="toast hidden" id="error-toast">
+      <span class="toast-icon">⚠️</span>
+      <span class="toast-text" id="toast-text"></span>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+# Node modules
+
+node_modules/
+
+# Environment variables
+
+.env
+
+# Logs
+
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory
+
+coverage/
+
+# Build folders
+
+dist/
+build/
+
+# OS files
+
+.DS_Store
+Thumbs.db
+
+# IDE files
+
+.vscode/
+.idea/
+
+# Uploads (if you don't want to push user files)
+
+uploads/
+
+# Optional: package-lock (if you don't want to track it)
+
+# package-lock.json
